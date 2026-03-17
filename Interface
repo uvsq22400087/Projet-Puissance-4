@@ -1,0 +1,141 @@
+# IMPORTER LES BIBLIOTHEQUES PYTHON
+import tkinter as tk
+import random as rd
+import time
+
+
+# CHOIX DE L'AFFICHAGE
+TEMPS_CHUTE = 0.1  # 0.1 pour visualiser la chute des pions sinon 0
+LARGEUR_GRILLE = 480  # On peut l'adapter 
+ESPACEMENT = LARGEUR_GRILLE / 64  # Espace entre 2 trous de la grille
+                                  
+
+# CONTRAINTES DU JEU(LES LIMITATIONS QUI DEFINISSENT LES ACTIONS POSSIBLES DES JOUEURS ET LES CONDITIONS DE VICTOIRE)
+NB_COLONNES = 7  # Nombre de colonnes de la grille de jeu
+NB_LIGNES = 6  # Nombre de lignes de la grille de jeu
+ALIGNEMENT = 4  # Nombre de pions à aligner pour gagner
+
+
+# CREATION DE LA FENETRE TKINTER
+# Création du widget principal ("parent") : fenetreJeu
+fenetreJeu = tk.Tk()
+# Personnaliser le widget principal
+## Titre de la fenetre
+fenetreJeu.title("Puissance 4")
+## Le fond de la fenetre
+fenetreJeu.config(bg="dark slate gray") 
+
+
+# AFFICHAGE DE LA GRILLE ET DES JETONS DANS LA FENETRE TKINTER
+
+def hauteur_grille(r):
+    """
+    Calcule la hauteur de la grille en fonction du rayon r des trous.
+
+    Args:
+        r (float): Le rayon des trous.
+
+    Returns:
+        float: La hauteur de la grille.
+
+    """
+    return 2*NB_LIGNES*r + (NB_LIGNES + 1)*ESPACEMENT
+
+# fonction qui permet de retourner le rayon des trous de la grille et des pions
+## (LARGEUR_GRILLE - (NB_COLONNES + 1) * ESPACEMENT) : la largeur totale des trous de la grille.
+## Cette largeur totale est divisée par (2 * NB_COLONNES) pour obtenir le rayon. 
+## Le facteur 2 est utilisé car il y a deux fois le rayon d'un trou entre chaque paire de colonnes.
+def rayon():
+    """
+    Calcule le rayon des trous de la grille et des pions.
+
+    Returns:
+        float: Le rayon des trous et des pions.
+
+    """
+    return (LARGEUR_GRILLE - (NB_COLONNES + 1)*ESPACEMENT) / (2*NB_COLONNES)
+
+#  Cette fonction est utilisée pour créer un trou de la grille à une position spécifiée (x, y) avec un rayon r et une couleur c.
+## x-r, y-r, x+r, y+r: Ces quatre valeurs sont les coordonnées du rectangle dans lequel le cercle est inscrit. 
+## (x-r, y-r) le coin supérieur gauche du rectangle
+## (x+r, y+r) le coin inférieur droit du rectangle
+## Prenant l'exemple où x = 7,5+r et y = 7,5+r donc on aurait :
+## (x-r, y-r) = (7,5+r-r, 7,5+r-r) = (7,5, 7,5)
+## (x+r, y+r) = (7,5+r+r, 7,5+r+r) = (7,5+2r, 7,5+2r)
+def creation_cercle(x, y, r, c, tag):
+    """
+    Crée un cercle représentant un trou ou un jeton.
+
+    Args:
+        x (float): La coordonnée x du centre du cercle.
+        y (float): La coordonnée y du centre du cercle.
+        r (float): Le rayon du cercle.
+        c (str): La couleur du cercle.
+        tag (str): Le tag à associer au cercle.
+
+    Returns:
+        identifiant (str): L'identifiant du cercle créé.
+
+    """
+    identifiant = grille.create_oval((x-r, y-r), (x+r, y+r), fill=c, width=0, tags=tag) # Le paramètre `tags` est un label
+                                                                                        # qu'on donne à la forme ovale pour la 
+                                                                                        # manipluler plus tard dans le code
+                                                                                        # Ici : tag = "trou" puis tag  "jeton"
+    return identifiant
+
+# La fonction parcourt toutes les lignes et toutes les colonnes de la grille, et pour chaque position, elle appelle 
+# creation_cercle() pour créer un trou de la grille à cette position.
+## Prenant l'exemple de la premiere itération : ligne=1, colonne=1 donc on aurait :
+## x = 7,5 + r + (1-1)*(7,5 + 2*r) = 7,5 + r
+## y = 7,5 + r + (1-1)*(7,5 + 2*r) = 7,5 + r
+## Prenant l'exemple de la deuxieme itération : ligne=1, colonne=2 donc on aurait :
+## x = 7,5 + r + (2-1)*(7,5 + 2*r) = 7,5 + r + (7,5 + 2*r)
+## y = 7,5 + r + (1-1)*(7,5 + 2*r) = 7,5 + r
+def creation_grille(r):
+    """
+    Crée une grille avec des trous de rayon r.
+
+    La grille est remplie de trous disposés en lignes et colonnes, avec un espacement fixe entre eux.
+
+    Args:
+        r (float): Le rayon des trous.
+
+    """
+    ligne = 1 # on l'initialise à 1 car on ne doit pas avoir le 0
+    while ligne <= NB_LIGNES:
+        # Cette boucle s'exécute tant que le numéro de la ligne est inférieur ou égal au nombre de lignes de la grille.
+        colonne = 1 # on  l'initialise à 1 car on ne doit pas avoir le 0
+        while colonne <= NB_COLONNES:
+            # Cette boucle s'exécute tant que le numéro de la colonne est inférieur ou égal au nombre de colonnes de la grille.
+            creation_cercle(ESPACEMENT + r + (colonne-1)*(ESPACEMENT + 2*r),
+                            ESPACEMENT + r + (ligne-1)*(ESPACEMENT + 2*r),
+                            r, 'white', 'trou')
+            colonne += 1
+        ligne += 1    
+
+# Cette fonction créee un jeton de la couleur spécifiée à la position donnée (colonne, ligne) dans la grille de jeu, elle 
+# détermine les coordonnées(x, y)du centre du jeton, appelle la fonction creation_cercle() pour créer le jeton avec ces coordonnées.
+## colonne : le numéro de la colonne où le jeton doit être placé.
+## ligne : le numéro de la ligne où le jeton doit être placé(c'a'd apres la fin de sa chute !)
+## c : la couleur du jeton.
+## r : le rayon du jeton
+## La formule (NB_LIGNES-ligne+1) : pour inverser la numérotation des lignes, car dans la chute la numérotation commence de bas
+## Si ligne=5 : 6-5+1=2 donc le jeton doit etre placé à la ligne 2 car en réalité le joueur a choisi la ligne 2 
+def creation_jeton(colonne, ligne, c, r): 
+    """
+    Crée un jeton de couleur c et de rayon r à la colonne et à la ligne indiquée.
+
+    Args:
+        colonne (int): Le numéro de la colonne où placer le jeton.
+        ligne (int): Le numéro de la ligne où placer le jeton.
+        c (str): La couleur du jeton.
+        r (float): Le rayon du jeton.
+
+    Returns:
+        indentifiant (str): L'identifiant du jeton créé.
+
+    """
+    identifiant = creation_cercle(colonne*(ESPACEMENT+2*r)-r,
+                                  (NB_LIGNES-ligne+1)*(ESPACEMENT+2*r)-r,
+                                  r, c, 'jeton')
+    return identifiant 
