@@ -1,0 +1,116 @@
+from interface import affiche_grille_fenetre, affiche_gagnant_fenetre, affiche_aucun_gagnant_fenetre, affiche_joueur_fenetre, NB_COLONNES, NB_LIGNES, ALIGNEMENT
+import math
+
+MODE_GRAPHIQUE = True
+
+def affiche_grille_terminal(jetons):
+    """
+    Affiche la grille de jeu dans le terminal en formatant les jetons selon une disposition de grille.
+    Args:
+        jetons (list): Une liste contenant les symboles des jetons pour chaque position de la grille.
+                       La taille de la liste doit correspondre à NB_COLONNES * NB_LIGNES.
+    Les constantes NB_COLONNES et NB_LIGNES doivent être définies dans le scope global du script pour que cette
+    fonction fonctionne correctement.
+    """
+    i = NB_COLONNES*(NB_LIGNES-1)
+    while i >= 0:
+        print(jetons[i:i+NB_COLONNES])
+        i = i - NB_COLONNES
+
+    print()
+#Cette fonction prend en entrée une liste `jetons` qui contient les symboles (par exemple, 'R', 'J', ou ' ')
+#représentant l'état actuel de chaque position dans une grille de jeu structurée avec des lignes et des colonnes.
+#Elle affiche cette liste sous la forme d'une grille dans le terminal, avec les positions de jetons disposées de bas en
+#haut et de gauche à droite selon les constantes NB_COLONNES et NB_LIGNES définissant la taille de la grille.
+#La grille est affichée en commençant par la dernière ligne et en remontant vers la première ligne.
+
+
+
+def affiche_joueur_qui_commence_terminal(couleur):
+    """
+    Affiche dans le terminal le joueur qui commencera la partie, selon la couleur spécifiée.
+    Args:
+        couleur (str): La couleur du joueur qui doit commencer. Les valeurs attendues sont 'yellow' ou 'red'.
+        Si une couleur différente de 'yellow' ou 'red' est passée en argument, aucun message spécifique n'est affiché.
+        Cette fonction pourrait être étendue pour gérer des cas d'erreur ou des valeurs inattendues de manière plus robuste.
+    """
+    if couleur == 'yellow':
+        print('Les jaunes commencent')
+    elif couleur == 'red':
+        print('Les rouges commencent')
+
+#Cette fonction annonce dans le terminal quel joueur commence la partie en se basant sur la couleur fournie en argument.
+#Elle accepte deux valeurs pour la couleur : 'yellow' pour les jaunes et 'red' pour les rouges. Selon la couleur passée,
+#la fonction affiche un message approprié.
+
+
+
+def affiche_joueur_terminal(couleur):
+    """
+    Affiche dans le terminal le joueur actuel selon la couleur spécifiée.
+    Args:
+        couleur (str): La couleur du joueur qui est en train de jouer. Accepte 'yellow' pour les jaunes et 'red' pour les rouges.
+    Cette fonction annonce dans le terminal quel joueur est en train de jouer. Elle vérifie la couleur passée en argument
+    et affiche un message approprié en fonction de cette couleur.
+    """
+    if couleur == 'yellow':
+        print('Les jaunes jouent')
+    elif couleur == 'red':
+        print('Les rouges jouent')
+
+#Si la couleur est 'yellow', affiche 'Les jaunes ont gagné'.
+#Si la couleur est 'red', affiche 'Les rouges ont gagné'.
+    
+
+def affiche_gagnant_terminal(couleur):
+    """
+    Affiche dans le terminal le joueur gagnant selon la couleur spécifiée.
+    Args:
+        couleur (str): La couleur du joueur qui a gagné la partie. Doit être 'yellow' ou 'red'.
+    Cette fonction annonce le gagnant de la partie en fonction de la couleur fournie. Elle affiche un message
+    indiquant le joueur qui a remporté la partie sans passer à la ligne suivante grâce à l'utilisation de `end=''`.
+    """
+    if couleur == 'yellow':
+        print('Les jaunes ont gagné', end='')
+    elif couleur == 'red':
+        print('Les rouges ont gagné', end='')
+
+#Si la couleur est 'yellow', affiche 'Les jaunes ont gagné'.
+#Si la couleur est 'red', affiche 'Les rouges ont gagné'
+
+
+def affiche_aucun_gagnant_terminal():
+    """
+    Affiche un message indiquant qu'aucun joueur n'a gagné la partie (match nul).
+    Cette fonction est utilisée pour annoncer un résultat de match nul dans le terminal. Elle affiche le message 'Match nul!'
+    lorsqu'aucun des joueurs n'a réussi à remporter la partie.
+    """
+    print('Match nul!')
+
+
+
+
+def affiche_score_terminal(victoires):
+    """
+    Affiche les scores des joueurs dans le terminal.
+    Args:
+        victoires (list): Liste contenant le nombre de victoires des jaunes, des rouges et le nombre de parties nulles,
+                          typiquement sous la forme [jaunes, rouges, nulles].
+    Cette fonction affiche le score actuel pour les joueurs jaunes et rouges ainsi que le nombre de parties nulles.
+    Elle décompose la liste `victoires` en trois catégories distinctes et affiche ces informations de manière claire.
+    """
+    [jaunes, rouges, nulles] = victoires
+    print('Jaunes : ' + str(jaunes))  # score des jaunes
+    print('Rouges : ' + str(rouges))  # score des rouges
+    print('Nulles : ' + str(nulles))  # Parties nulles
+    print()
+
+
+def initialise_liste_jetons():
+    """
+    Initialise la liste des jetons pour représenter une grille de jeu vide.
+    Returns:
+        list: Une liste de zéros représentant une grille de jeu vide, où chaque zéro indique une case non occupée.
+              La taille de la liste est déterminée par NB_COLONNES * NB_LIGNES.
+    """
+    return [0] * (NB_COLONNES * NB_LIGNES)
