@@ -1,1 +1,59 @@
+# IMPORTER LES BIBLIOTHEQUES PYTHON
+import tkinter as tk
+import random as rd
+import time
 
+# CHOIX DE L'AFFICHAGE
+TEMPS_CHUTE = 0.1  # 0.1 pour visualiser la chute des pions sinon 0
+LARGEUR_GRILLE = 480  # On peut l'adapter 
+ESPACEMENT = LARGEUR_GRILLE / 64  # Espace entre 2 trous de la grille
+                                 
+# CONTRAINTES DU JEU(LES LIMITATIONS QUI DEFINISSENT LES ACTIONS POSSIBLES DES JOUEURS ET LES CONDITIONS DE VICTOIRE)
+NB_COLONNES = 7  
+NB_LIGNES = 6  
+ALIGNEMENT = 4  
+
+# CREATION DE LA FENETRE TKINTER
+# Création du widget principal ("parent") : fenetreJeu
+fenetreJeu = tk.Tk()
+# Personnaliser le widget principal
+## Titre de la fenetre
+fenetreJeu.title("Puissance 4")
+## Le fond de la fenetre
+fenetreJeu.config(bg="dark slate gray") 
+
+
+# AFFICHAGE DE LA GRILLE ET DES JETONS DANS LA FENETRE TKINTER
+# fonction qui permet de definir la hauteur de la grille en fonction de rayon r des trous de la grille
+## 2 * NB_LIGNES * r : la hauteur totale occupée par les trous de la grille. Comme il y a NB_LIGNES lignes
+dans la grille, chaque ligne a besoin d'un espace équivalent à 2 * r (un espace au-dessus et un en dessous) pour accueillir 
+## les trous.
+## (NB_LIGNES + 1) * ESPACEMENT : la hauteur totale de l'espace entre les lignes de la grille.
+## Il y a NB_LIGNES + 1 espacements entre les lignes (un en haut et un en bas, et un entre chaque paire de lignes), chacun ayant
+## une hauteur égale à ESPACEMENT.
+def hauteur_grille(r):
+    """
+    Calcule la hauteur de la grille en fonction du rayon r des trous.
+
+    Args:
+        r (float): Le rayon des trous.
+
+    Returns:
+        float: La hauteur de la grille.
+
+    """
+    return 2*NB_LIGNES*r + (NB_LIGNES + 1)*ESPACEMENT
+
+# fonction qui permet de retourner le rayon des trous de la grille et des pions
+## (LARGEUR_GRILLE - (NB_COLONNES + 1) * ESPACEMENT) : la largeur totale des trous de la grille.
+## Cette largeur totale est divisée par (2 * NB_COLONNES) pour obtenir le rayon. 
+## Le facteur 2 est utilisé car il y a deux fois le rayon d'un trou entre chaque paire de colonnes.
+def rayon():
+    """
+    Calcule le rayon des trous de la grille et des pions.
+
+    Returns:
+        float: Le rayon des trous et des pions.
+
+    """
+    return (LARGEUR_GRILLE - (NB_COLONNES + 1)*ESPACEMENT) / (2*NB_COLONNES)
