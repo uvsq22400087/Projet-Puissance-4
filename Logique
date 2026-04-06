@@ -114,3 +114,239 @@ def initialise_liste_jetons():
               La taille de la liste est déterminée par NB_COLONNES * NB_LIGNES.
     """
     return [0] * (NB_COLONNES * NB_LIGNES)
+def alignement(somme, nbPions, couleur):
+    """
+    Détermine si un alignement de pions correspondant à une couleur spécifique est atteint.
+    Args:
+        somme (int): La somme des valeurs dans un segment de la grille à vérifier.
+        nbPions (int): Le nombre de pions à aligner pour gagner.
+        couleur (str): La couleur du joueur ('yellow' pour jaune ou 'red' pour rouge).
+    Retourne:
+        un booleen: Vrai si un alignement correspondant à la couleur spécifiée est atteint, sinon faux.
+    """
+    pionsAlignes = False
+    if (couleur == 'yellow' and somme == nbPions) or (couleur == 'red' and somme == -nbPions):
+        pionsAlignes = True
+    return pionsAlignes
+#Cette fonction analyse la somme des valeurs d'un segment de la grille pour déterminer si elle correspond à un alignement complet
+#de pions pour un joueur spécifique. Un alignement pour les jaunes est vérifié si la somme est égale à `nbPions` et pour les rouges si
+#la somme est égale à `-nbPions`.
+
+
+
+def alignements_pleins(jetons, nbPions, couleur):
+    """
+    Identifie et retourne les alignements complets de pions pour une couleur donnée.
+    Args:
+        jetons (list): Liste représentant la grille de jeu avec des valeurs associées à chaque case (par exemple, 1 pour jaune, -1 pour rouge, 0 pour vide).
+        nbPions (int): Nombre de pions consécutifs nécessaires pour constituer un alignement valide.
+        couleur (str): Couleur des pions à vérifier ('yellow' pour les jaunes, 'red' pour les rouges).
+
+    Retourne:
+        list: Liste des alignements trouvés. Chaque alignement est représenté par une liste contenant la colonne de départ (1-indexé), la ligne de départ (1-indexé),
+              et la direction de l'alignement ('H' pour horizontal, 'V' pour vertical, 'DM' pour diagonale montante, 'DD' pour diagonale descendante).
+              Si des alignements sont trouvés, le nombre de pions alignés est préfixé à la liste.
+
+    La fonction parcourt la grille de jeu et vérifie les alignements possibles dans toutes les directions :
+    horizontale, verticale, diagonale montante et diagonale descendante. Elle utilise la fonction `alignement` pour vérifier
+    si un groupe de cases correspond à un alignement valide selon la couleur spécifiée et le nombre de pions.
+    """
+    listeAlignementsPleins = []
+    # Vérification des alignements horizontaux
+    for j in range(NB_LIGNES):
+        for i in range(NB_COLONNES-nbPions+1):
+            somme = 0
+            for k in range(nbPions):
+                somme += jetons[NB_COLONNES*j+i+k]
+            if alignement(somme, nbPions, couleur):
+                listeAlignementsPleins += [i+1,j+1,"Horizontal"]
+    # Vérification des alignements verticaux
+    for j in range(NB_LIGNES-nbPions+1):
+        for i in range(NB_COLONNES):
+            somme = 0
+            for k in range(nbPions):
+                somme += jetons[NB_COLONNES*j+i+k*NB_COLONNES]
+            if alignement(somme, nbPions, couleur):
+                listeAlignementsPleins += [i+1,j+1,"Vertical"]
+    # Vérification des diagonales montantes
+    for j in range(NB_LIGNES-nbPions+1):
+        for i in range(NB_COLONNES-nbPions+1):
+            somme = 0
+            for k in range(nbPions):
+                somme += jetons[NB_COLONNES*j+i+k*NB_COLONNES+k]
+            if alignement(somme, nbPions, couleur):
+                listeAlignementsPleins += [i+1,j+1,"DiagonaleMontante"]
+    # Vérification des diagonales descendantes
+    for j in range(nbPions-1, NB_LIGNES):
+        for i in range(NB_COLONNES-nbPions+1):
+            somme = 0
+            for k in range(nbPions):
+                somme += jetons[NB_COLONNES*j+i-k*NB_COLONNES+k]
+            if alignement(somme, nbPions, couleur):
+                listeAlignementsPleins += [i+1,j+1,"DiagonalDescandante"]
+    if listeAlignementsPleins != []:
+        listeAlignementsPleins = [nbPions] + listeAlignementsPleins
+    return listeAlignementsPleins
+
+
+
+def grille_pleine(jetons):
+    """
+    Détermine si la grille de jeu est totalement remplie.
+
+    Cette fonction parcourt chaque case de la grille de jeu pour vérifier s'il reste des cases vides.
+    Une case vide est représentée par la valeur 0 dans la liste des jetons.
+    Args:
+        jetons (list): Une liste d'entiers représentant l'état de la grille de jeu. 
+                       Les valeurs sont 1 ou -1 pour les pions joués, et 0 pour les cases vides.
+    Returns:
+        bool: Retourne True si la grille est pleine, False autrement.
+    """
+    plein = True
+    for i in range(NB_LIGNES*NB_COLONNES):
+        if jetons[i] == 0:
+            plein = False
+    return plein
+
+
+
+def inverse(couleur):
+    """ Inverse les couleurs"""
+    if couleur == 'yellow':
+        couleur = 'red'
+    elif couleur == 'red':
+        couleur = 'yellow'
+    return couleur
+
+
+
+def colonne_pleine(jetons, colonne):
+    """Vérifie si la colonne spécifiée est pleine dans la grille de jeu.
+
+    Args:
+        jetons (list): Liste représentant l'état actuel de la grille de jeu.
+        colonne (int): Numéro de colonne (1-indexé) à vérifier.
+    Returns:
+        bool: True si la colonne est pleine, False sinon.
+    """
+    plein = True
+    position = NB_COLONNES*(NB_LIGNES-1)+colonne-1
+    if jetons[position] == 0:
+        plein = False
+    return plein
+#Cette fonction prend en entrée la liste `jetons` représentant l'état de la grille de jeu et le numéro de colonne
+#à vérifier. Elle retourne True si la colonne est pleine, c'est-à-dire si la case la plus basse dans la colonne
+#est déjà occupée par un pion. Sinon, elle retourne False, indiquant qu'il reste au moins une case vide dans la colonne.
+    
+
+
+def jouer(jetons, couleur, colonne):
+    """
+    Moteur du jeu qui place un pion de la couleur spécifiée dans la colonne indiquée.
+
+    Args:
+        jetons (list): Liste représentant l'état actuel de la grille de jeu.
+        couleur (str): Couleur du joueur ('yellow' pour jaune ou 'red' pour rouge).
+        colonne (int): Numéro de colonne (1-indexé) dans laquelle placer le pion.
+
+    Returns:
+        list: Liste mise à jour représentant l'état de la grille après avoir placé le pion.
+    """
+    if not colonne_pleine(jetons, colonne):
+        # On remplit la liste des jetons
+        position = colonne - 1
+        ligneSupport = 0
+        while jetons[position]:
+            ligneSupport += 1
+            position += NB_COLONNES
+        if couleur == 'yellow':
+            valeur = 1
+        elif couleur == 'red':
+            valeur = -1            
+        jetons[position] = valeur
+    # On affiche la grille pour visualiser les jetons
+    affiche_grille_terminal(jetons)                                   # Affichage Grille
+    if MODE_GRAPHIQUE:
+        affiche_grille_fenetre(colonne, ligneSupport, couleur)
+    return jetons
+
+#Cette fonction prend en entrée la liste `jetons` représentant l'état actuel de la grille de jeu,
+#la couleur du joueur qui place le pion, et le numéro de colonne dans laquelle placer le pion.
+#Si la colonne spécifiée n'est pas pleine, la fonction place le pion dans la colonne au niveau de la
+#position la plus basse disponible. Elle met à jour la liste `jetons` avec le nouveau placement du pion
+#et retourne la grille mise à jour.
+
+#La fonction affiche également la grille de jeu dans le terminal et, si le mode graphique est activé,
+#affiche également le pion dans la fenêtre graphique du jeu.
+
+
+def fin_partie(jetons, couleur, victoires):
+    """
+    Vérifie si la partie est terminée et met à jour les scores en conséquence.
+
+    Args:
+        jetons (list): Liste représentant l'état actuel de la grille de jeu.
+        couleur (str): Couleur du joueur actuel ('yellow' pour jaune ou 'red' pour rouge).
+        victoires (list): Liste contenant le nombre de victoires des jaunes, des rouges et le nombre de parties nulles,
+                          typiquement sous la forme [jaunes, rouges, nulles].
+
+    Returns:
+        tuple: Un tuple contenant trois éléments :
+               - fin (bool): True si la partie est terminée, False sinon.
+               - couleur (str): Couleur du prochain joueur si la partie n'est pas terminée.
+               - victoires (list): Liste mise à jour des scores après la fin de la partie.
+    """
+    [jaunes, rouges, nulles] = victoires
+    # On teste si la partie est finie
+    fin = False
+    if alignements_pleins(jetons, ALIGNEMENT, couleur):
+        fin = True
+        if couleur == 'yellow':
+            jaunes += 1
+        elif couleur == 'red':
+            rouges += 1
+        # On affiche le gagnant
+        affiche_gagnant_terminal(couleur)
+        nbCoups = analyse_victoire(jetons)
+        print(" en", nbCoups, "coups")
+        if MODE_GRAPHIQUE:
+            affiche_gagnant_fenetre(couleur)
+    elif grille_pleine(jetons):
+        fin = True
+        nulles += 1
+        # On affiche aucun gagnant
+        affiche_aucun_gagnant_terminal()
+        if MODE_GRAPHIQUE:
+            affiche_aucun_gagnant_fenetre()
+    else:
+        couleur = inverse(couleur)
+        # On affiche qui doit jouer
+        affiche_joueur_terminal(couleur)
+        if MODE_GRAPHIQUE:
+            affiche_joueur_fenetre(couleur)
+    victoires = [jaunes, rouges, nulles]
+    return fin, couleur, victoires
+
+#Cette fonction vérifie si la partie est terminée en vérifiant s'il y a un alignement complet de pions ou si la grille
+#est complètement remplie. Si la partie est terminée, elle met à jour les scores en fonction du résultat (victoire d'un
+#joueur ou match nul) et affiche le résultat dans le terminal. Si la partie n'est pas terminée, elle détermine la couleur
+#du prochain joueur et l'affiche dans le terminal.
+
+#La fonction retourne un tuple contenant un booléen indiquant si la partie est terminée, la couleur du prochain joueur
+#si la partie n'est pas terminée, et la liste mise à jour des scores.
+
+def analyse_victoire(positions):
+    """Analyse la victoire"""
+    # Nombre de coups du gagnant
+    nbPositionsPleines = NB_LIGNES*NB_COLONNES
+    for i in range(NB_LIGNES*NB_COLONNES):
+        if positions[i] == 0:
+            nbPositionsPleines -= 1
+    return math.ceil(nbPositionsPleines/2)  ## Arrondi à l'entier supérieur
+
+#Cette fonction analyse l'état actuel de la grille de jeu et détermine le nombre de coups qui ont été joués jusqu'à présent.
+#Le nombre de coups est calculé en comptant le nombre total de cases remplies dans la grille. Le nombre total de cases est
+#déterminé par le produit du nombre de lignes et de colonnes de la grille (NB_LIGNES * NB_COLONNES). Le nombre de coups
+#est ensuite calculé en soustrayant le nombre de cases vides de ce total, puis en divisant le résultat par 2 pour obtenir
+#le nombre de coups joués par chaque joueur.
+
