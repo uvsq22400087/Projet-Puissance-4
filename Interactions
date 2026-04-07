@@ -1,15 +1,10 @@
-import tkinter as tk
-
-#cette fonction termine la partie celon les regles du jeu
-def gagant ():
-    if # 4 jetons sont alignes
-    return True
-def grille pleine():
-    if #lignes et colonnes plaines
-    return true
+def partie_terminee():
+    if gagnant() or grille_pleine():
+        return True
+    else:
+        return False
 
 
-# le jeton est placer dans la grille par le clic sur la colonne
 def clic_souris(event):
     global couleurJoueur
     global grille
@@ -26,3 +21,26 @@ def clic_souris(event):
         if x > col*ESPACEMENT + 2*(col)*ray and x < col*ESPACEMENT + 2*(col+1)*ray:
             colonne = col + 1
             break
+
+    # Vérifie si la colonne est valide et non pleine
+    if colonne != 0 and grille[0][colonne-1] == 0:
+        ligne = chute_pion(colonne)
+        # Affiche le jeton dans la fenêtre
+        couleur = 'yellow' if couleurJoueur == 'yellow' else 'red'
+        affiche_grille_fenetre(colonne, ligne, couleur)
+        # Vérifie s'il y a un gagnant
+        if gagnant(colonne, ligne):
+            affiche_gagnant_fenetre(couleurJoueur)
+            incrementer_victoire(couleurJoueur)
+            affiche_victoires_fenetre(victoires)
+            return
+        # Vérifie s'il y a égalité
+        elif grille_pleine():
+            affiche_aucun_gagnant_fenetre()
+            return
+        # Change de joueur
+        couleurJoueur = 'yellow' if couleurJoueur == 'red' else 'red'
+        affiche_joueur_fenetre(couleurJoueur)
+
+# Lie la fonction clic_souris à l'évènement clic gauche de la souris
+grille.bind('<Button-1>', clic_souris)
